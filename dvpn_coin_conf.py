@@ -69,6 +69,8 @@ if __name__ == "__main__":
 
     if args.twap:
         days = int(args.twap)
+    else:
+        days = 1
     CoinPrices = CoinGeckoPrices(days)
     
     for coin in CoinPrices.keys():
