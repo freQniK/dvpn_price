@@ -13,12 +13,14 @@ sudo pip install toml pycoingecko
 
 Edit the lines in the python script that say **EDIT**
 to your specifications.
-Lines 9,10,15
+Lines 16,17,22
 
 # Run
 ```shell
-sudo python3 dvpn_coin_conf.py
+sudo python3 dvpn_coin_conf.py --twap days
 ```
+
+Where **days** is the number of days to average a price over based on market price of the coin for each previous day. 
 
 You can also create a cronjob (as root) to have this run every week, every month, every day, every hour, every minute. Just be sure to restart your node eventually for the changes to take place. 
 
