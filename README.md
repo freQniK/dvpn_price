@@ -1,6 +1,10 @@
 # dvpn_price
 Update Sentinel DVPN Node Prices with Market Changes
 
+## Note 
+
+This is for dVPN node versions 0.3.2
+
 # Install
 ```shell
 sudo apt install python3-pip

@@ -1,13 +1,20 @@
+# ONLY FOR dVPN Nodes v0.3.2
 # sudo apt install python3-pip
 # sudo pip install toml pycoingecko
 # sudo python3 dvpn_coin_conf.py
+
 import toml
 from pycoingecko import CoinGeckoAPI 
 from os import path
+import argparse
+import datetime
+import time
+from statistics import mean
 
-# EDIT THESE. $6.28 for 314 GB or $0.02/GB
+
+# EDIT THESE. $6.28 for 628 GB or $0.01/GB
 PRICE = 6.28
-GB    = 314
+GB    = 628
 
 # EDIT THIS FOR THE BASE DIR OF .sentinelnode DIRECTORY
 # i.e., /home/sentinel/.sentinelnode
@@ -28,11 +35,24 @@ SATOSHI = 1000000
 BASEDIR  = path.join(USERBASEDIR, '.sentinelnode')
 
 
-def CoinGeckoPrices():
+def CoinGeckoPrices(days):
     cg = CoinGeckoAPI()
-    
-    CoinPrices = cg.get_price(list(COINS.keys()), 'usd')
-    print(CoinPrices)
+    today = datetime.datetime.now()
+    #CoinPrices = cg.get_price(list(COINS.keys()), 'usd')
+    CoinPrices = {}
+    price_data = {coin: [] for coin in list(COINS.keys())}
+    for k in range(1,days+1):
+        for coin in list(COINS.keys()):    
+            delta = datetime.timedelta(days=k)
+            yesterday = today - delta
+            data = cg.get_coin_history_by_id(id=coin, date=yesterday.strftime("%d-%m-%Y"),vs_currencies='usd')
+            price_data[coin].append(data["market_data"]["current_price"]["usd"])
+            #print(price_data[coin])
+            time.sleep(2)
+            
+    for coin in list(COINS.keys()):
+        CoinPrices[coin] = mean(price_data[coin])
+    #print(CoinPrices)
     return CoinPrices
 
 def CalculateRate(coin_price):
@@ -40,12 +60,22 @@ def CalculateRate(coin_price):
 
 if __name__ == "__main__":
     IBCPRICES = {}
-    CoinPrices = CoinGeckoPrices()
+    parser = argparse.ArgumentParser(description="dVPN Price Oracle for dVPN Node operators")
+    parser.add_argument('-t', '--twap', help="Time Weighted Average Price. --twap days", metavar='twap')
+    
+    args = parser.parse_args()
+    
+    
+
+    if args.twap:
+        days = int(args.twap)
+    CoinPrices = CoinGeckoPrices(days)
+    
     for coin in CoinPrices.keys():
         if 'sentinel' in coin:
-            IBCPRICES['udvpn'] = int(CalculateRate(CoinPrices[coin]['usd']))
+            IBCPRICES['udvpn'] = int(CalculateRate(CoinPrices[coin]))
         else:
-            IBCPRICES[COINS[coin]] = int(CalculateRate(CoinPrices[coin]['usd']))
+            IBCPRICES[COINS[coin]] = int(CalculateRate(CoinPrices[coin]))
             
     print(IBCPRICES)
     
