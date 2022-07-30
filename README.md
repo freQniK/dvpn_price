@@ -11,16 +11,48 @@ sudo apt install python3-pip
 sudo pip install toml pycoingecko
 ```
 
-Edit the lines in the python script that say **EDIT**
-to your specifications.
-Lines 16,17,22
+## Note
+It is no longer necessary to edit the file as we have provided command line arguments for the configuration. Please see below. 
 
 # Run
 ```shell
-sudo python3 dvpn_coin_conf.py --twap days
+$ sudo python3 dvpn_price.py --help
+usage: dvpn_price.py [-h] [-t twap] [-p price] [-u user]
+
+dVPN Price Oracle for dVPN Node operators v0.3.2
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -t twap, --twap twap  Time Weighted Average Price. --twap days
+  -p price, --price price
+                        Set the price per GB you would like to charge in USD.
+                        i.e., --price 0.005
+  -u user, --user user  Set the base directory where .sentinelnode/ exists
+                        i.e., --user dvpn - implies (/home/dvpn/.sentinelnode)
+
 ```
 
-Where **days** is the number of days to average a price over based on market price of the coin for each previous day. 
+Where **days** in `--twap` is the number of days to average a price over based on market price of the coin for each previous day. 
 
-You can also create a cronjob (as root) to have this run every week, every month, every day, every hour, every minute. Just be sure to restart your node eventually for the changes to take place. 
+## Example
+```shell
+sudo python3 dvpn_price.py --twap 10 --price 0.001 --user sentinel
+```
+
+This will average the price of *OSMO, SCRT, ATOM, DEC, DVPN* over the last 10 days. It will set a price of *$0.001/GB* and change the **config.toml** in the directory `/home/sentinel/.sentinelnode/config.toml`
+
+## Cronjob
+You can also create a cronjob (as root) to have this run every week, every month, every day, every hour, every minute. Just be sure to restart your node eventually for the changes to take place.
+
+### Example
+```shell
+sudo crontab -e
+```
+
+Place the following line at the bottom of the file:
+```
+59 12 * * * python3 /home/sentinel/Scripts/dvpn_price.py --twap 14 --price 0.003 --user sentinel
+```
+
+This will update your sentinel node **config.toml** every day at 12:59 p.m.
 
