@@ -43,7 +43,7 @@ def CoinGeckoPrices(days):
             data = cg.get_coin_history_by_id(id=coin, date=yesterday.strftime("%d-%m-%Y"),vs_currencies='usd')
             price_data[coin].append(data["market_data"]["current_price"]["usd"])
             #print(price_data[coin])
-            time.sleep(2)
+            time.sleep(10)
             
     for coin in list(COINS.keys()):
         CoinPrices[coin] = mean(price_data[coin])
