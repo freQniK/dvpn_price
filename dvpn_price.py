@@ -10,12 +10,14 @@ import argparse
 import datetime
 import time
 from statistics import mean
-
+import requests
 
 # If not specified, node provider will charge this rate.
-# $0.005/GB
-PRICE = 5.00
-GB    = 1000
+# $0.008/GB,$0.005/hr
+GBPRICE = 8.00
+HRPRICE = 5.00
+GB      = 1000
+HR      = 1000
 
 # if not specified with --user username this is the default. i.e.,
 # /home/sentinel/.sentinelnode/config.toml
@@ -26,7 +28,7 @@ IBCATOM  = 'ibc/A8C2D23A1E6F95DA4E48BA349667E322BD7A6C996D8A4AAE8BA72E190F3D1477
 IBCDEC   = 'ibc/B1C0DDB14F25279A2026BC8794E12B259F8BDA546A3C5132CCAEE4431CE36783'
 IBCOSMO  = 'ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518'
 
-COINS = {'sentinel' : 'dvpn', 'osmosis' : IBCOSMO, 'decentr' : IBCDEC, 'cosmos' : IBCATOM, 'secret' : IBCSCRT}
+COINS = {'sentinel' : 'udvpn', 'osmosis' : IBCOSMO, 'decentr' : IBCDEC, 'cosmos' : IBCATOM, 'secret' : IBCSCRT}
 
 SATOSHI = 1000000
 
@@ -50,56 +52,124 @@ def CoinGeckoPrices(days):
     #print(CoinPrices)
     return CoinPrices
 
-def CalculateRate(coin_price):
-    return (float(PRICE/float((GB*coin_price))))*SATOSHI
+def CalculateGBRate(coin_price,coin,minp):
+    price = (float(GBPRICE/float((GB*coin_price))))*SATOSHI
+    
+    for key,value in COINS.items():
+        if key == coin:
+            for ibc,mu_price in minp.items():
+                if value == ibc:
+                    if price < float(mu_price):
+                        price = float(mu_price)
+
+    return price
+
+def CalculateHrRate(coin_price,coin,minp):
+    price = (float(HRPRICE/float((HR*coin_price))))*SATOSHI
+
+    for key,value in COINS.items():
+        if key == coin:
+            for ibc,mu_price in minp.items():
+                if value == ibc:
+                    if price < float(mu_price):
+                        price = float(mu_price)
+    return price
+
+def ParseNodePrices(gb,hr):
+    NodeGBPrices = []
+    NodeHrPrices = []
+    for k,v in gb.items():
+        NodeGBPrices.append(''.join([str(v),str(k)]))
+    
+    node_price_string = ''
+    for np in NodeGBPrices:
+        node_price_string = ','.join([node_price_string, np])
+    node_gb_price_string = node_price_string.replace(',','',1)
+
+    for k,v in hr.items():
+        NodeHrPrices.append(''.join([str(v),str(k)]))
+    
+    node_price_string = ''
+    for np in NodeHrPrices:
+        node_price_string = ','.join([node_price_string, np])
+    node_hr_price_string = node_price_string.replace(',','',1)
+
+    return node_gb_price_string,node_hr_price_string
 
 if __name__ == "__main__":
-    IBCPRICES = {}
-    parser = argparse.ArgumentParser(description="dVPN Price Oracle for dVPN Node operators v0.3.2")
-    parser.add_argument('-t', '--twap', help="Time Weighted Average Price. --twap days", metavar='twap')
-    parser.add_argument('-p', '--price', help="Set the price per GB you would like to charge in USD. i.e., --price 0.005", metavar='price')
+    print("dVPN Price Oracle for dVPN Node operators v0.4.0 - freQniK\n\n")
+    IBCGBPRICES = {}
+    IBCHRPRICES = {}
+    parser = argparse.ArgumentParser(description="dVPN Price Oracle for dVPN Node operators v0.4.0 - freQniK")
+    parser.add_argument('-t', '--twap', help="Time Weighted Average Price. --twap days", metavar='days')
+    parser.add_argument('-p', '--price-gb', help="Set the price per GB you would like to charge in USD. i.e., --price 0.005", metavar='price')
+    parser.add_argument('-q', '--price-hr', help="Set the price per hour you would like to charge in USD. i.e., --price 0.005", metavar='hprice')
     parser.add_argument('-u', '--user', help="Set the base directory where .sentinelnode/ exists i.e., --user dvpn - implies (/home/dvpn/.sentinelnode)", metavar='user')
     args = parser.parse_args()
     
+    r = requests.get('https://aimokoivunen.mathnodes.com:5000/api/minprices')
+    MINPRICES = r.json()
+    MIN_GB_PRICES = MINPRICES['MinGB']
+    MIN_HR_PRICES = MINPRICES['MinHr']
+    print("MIN PRICES: ")
+    print(MIN_GB_PRICES)
+    print(MIN_HR_PRICES)
+    a = input("Press Enter to continue....")
     
 
     if args.twap:
         days = int(args.twap)
     else:
         days = 1
-    CoinPrices = CoinGeckoPrices(days)
     
-    if args.price:
-        PRICE = GB*float(args.price)
-
+    
+    if args.price_gb:
+        GBPRICE = GB*float(args.price_gb)
+   
+    if args.price_hr:
+        HRPRICE = HR*float(args.price_hr)
+        
     if args.user:
         USERBASEDIR = '/home/' + args.user
     
     BASEDIR  = path.join(USERBASEDIR, '.sentinelnode')
+    print("Getting TWAP prices for all coins from Coingecko....")
+    CoinPrices = CoinGeckoPrices(days)
     
     for coin in CoinPrices.keys():
         if 'sentinel' in coin:
-            IBCPRICES['udvpn'] = int(CalculateRate(CoinPrices[coin]))
+            IBCGBPRICES['udvpn'] = int(CalculateGBRate(CoinPrices[coin],coin,MIN_GB_PRICES))
         else:
-            IBCPRICES[COINS[coin]] = int(CalculateRate(CoinPrices[coin]))
-            
-    print(IBCPRICES)
+            IBCGBPRICES[COINS[coin]] = int(CalculateGBRate(CoinPrices[coin],coin,MIN_GB_PRICES))
+    
+    for coin in CoinPrices.keys():
+        if 'sentinel' in coin:
+            IBCHRPRICES['udvpn'] = int(CalculateHrRate(CoinPrices[coin],coin,MIN_HR_PRICES))
+        else:
+            IBCHRPRICES[COINS[coin]] = int(CalculateHrRate(CoinPrices[coin],coin,MIN_HR_PRICES))
+    
+    
+    
+    print("GB Prices:")        
+    print(IBCGBPRICES)
+    print("\n")
+    print("Hourly Prices:")
+    print(IBCHRPRICES)
     
     
     with open(path.join(BASEDIR,'config.toml')) as CONF:
         toml_string = CONF.read()
     DVPNCONFIG = toml.loads(toml_string)
-    print(DVPNCONFIG['node']['price'])
-    NodePrices = []
-    for k,v in IBCPRICES.items():
-        NodePrices.append(''.join([str(v),str(k)]))
+    #print(DVPNCONFIG['node']['gigabit_prices'])
+    #print(DVPNCONFIG['node']['hourly_prices'])
     
-    node_price_string = ''
-    for np in NodePrices:
-        node_price_string = ','.join([node_price_string, np])
-    node_price_string = node_price_string.replace(',','',1)
-    print(node_price_string)
-    DVPNCONFIG['node']['price'] = node_price_string
+    
+    node_gb_price_string,node_hr_price_string = ParseNodePrices(IBCGBPRICES, IBCHRPRICES)
+    
+    print(node_gb_price_string)
+    print(node_hr_price_string)
+    DVPNCONFIG['node']['gigabyte_prices'] = node_gb_price_string
+    DVPNCONFIG['node']['hourly_prices']   = node_hr_price_string
     CONF = open(path.join(BASEDIR,'config.toml'), 'w')
     toml.dump(DVPNCONFIG, CONF)
     
