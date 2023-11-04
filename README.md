@@ -12,7 +12,7 @@ We have compiled it into a package distribtion now for cross-compatibility on al
 Download the latest version of [dvpn_price](https://github.com/freQniK/dvpn_price/releases/download/v0.4.1/dvpn_price-v0.4.1.tar.gz) from the releases page and extract, i.e., :
 
 ```shell
-wget -O - https://github.com/freQniK/dvpn_price/releases/download/v0.4.1/dvpn_price-v0.4.1.tar.gz | tar xvzf
+wget -O - https://github.com/freQniK/dvpn_price/releases/download/v0.4.1/dvpn_price-v0.4.1.tar.gz | tar xvzf -
 ```
 
 ## Run
