@@ -5,32 +5,27 @@ Update Sentinel DVPN Node Prices with Market Changes including IBC coin prices b
 
 This is for dVPN node versions 0.7.0
 
+We have compiled it into a package distribtion now for cross-compatibility on all amd64 linux systems.
+
 # Install (binary)
 
-Download the latest version of [dvpn_price](https://github.com/freQniK/dvpn_price/releases/download/v0.4.0/dvpn_price) from the releases page.
+Download the latest version of [dvpn_price](https://github.com/freQniK/dvpn_price/releases/download/v0.4.1/dvpn_price-v0.4.1.tar.gz) from the releases page and extract, i.e., :
 
-# Install (source)
 ```shell
-sudo apt install python3-pip
-sudo pip install toml pycoingecko
+wget -O - https://github.com/freQniK/dvpn_price/releases/download/v0.4.1/dvpn_price-v0.4.1.tar.gz | tar xvzf
 ```
 
-Then run from source:
+## Run
+We now distribute this as a cross-platform package so untarballing it will product a `bin` folder where libraries and binaries reside. 
 
 ```shell
-sudo ./dvpn_price.py -h
-```
-
-# Run
-
-```shell
-$ sudo python3 dvpn_price -h
-dVPN Price Oracle for dVPN Node operators v0.4.0 - freQniK
+$ sudo ./bin/dvpn_price -h
+dVPN Price Oracle for dVPN Node operators v0.4.1 - freQniK
 
 
 usage: dvpn_price.py [-h] [-t days] [-p price] [-q hprice] [-u user]
 
-dVPN Price Oracle for dVPN Node operators v0.4.0 - freQniK
+dVPN Price Oracle for dVPN Node operators v0.4.1 - freQniK
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -63,6 +58,20 @@ This will average the price of *OSMO, SCRT, ATOM, DEC, DVPN* over the last 7 day
 ### Note
 Be sure to run this as `sudo` as the config directory is root permissions only. 
 
+
+# Install (source)
+```shell
+sudo apt install python3-pip
+sudo pip install toml pycoingecko
+```
+
+## Run (from source)
+
+```shell
+sudo ./dvpn_price.py -h
+```
+
+
 ## Cronjob
 You can also create a cronjob (as root) to have this run every week, every month, every day, every hour, every minute. Just be sure to restart your node eventually for the changes to take place.
 
@@ -73,7 +82,7 @@ sudo crontab -e
 
 Place the following line at the bottom of the file:
 ```
-59 12 * * * /home/sentinel/Scripts/dvpn_price --twap 7 --price-gb 0.008 --price-hr 0.005 --user sentinel
+59 12 * * * /home/sentinel/bin/dvpn_price --twap 7 --price-gb 0.008 --price-hr 0.005 --user sentinel
 ```
 
 This will update your sentinel node **config.toml** every day at 12:59 p.m.

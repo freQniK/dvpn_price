@@ -12,6 +12,8 @@ import time
 from statistics import mean
 import requests
 
+VERSION = "v0.4.1"
+
 # If not specified, node provider will charge this rate.
 # $0.008/GB,$0.005/hr
 GBPRICE = 8.00
@@ -97,11 +99,11 @@ def ParseNodePrices(gb,hr):
     return node_gb_price_string,node_hr_price_string
 
 if __name__ == "__main__":
-    print("dVPN Price Oracle for dVPN Node operators v0.4.0 - freQniK\n\n")
+    print(f"dVPN Price Oracle for dVPN Node operators {VERSION} - freQniK\n\n")
     IBCGBPRICES = {}
     IBCHRPRICES = {}
-    parser = argparse.ArgumentParser(description="dVPN Price Oracle for dVPN Node operators v0.4.0 - freQniK")
-    parser.add_argument('-t', '--twap', help="Time Weighted Average Price. --twap days", metavar='days')
+    parser = argparse.ArgumentParser(description=f"dVPN Price Oracle for dVPN Node operators {VERSION} - freQniK")
+    parser.add_argument('-t', '--twap', help="Time Weighted Average Price.", metavar='days')
     parser.add_argument('-p', '--price-gb', help="Set the price per GB you would like to charge in USD. i.e., --price 0.005", metavar='price')
     parser.add_argument('-q', '--price-hr', help="Set the price per hour you would like to charge in USD. i.e., --price 0.005", metavar='hprice')
     parser.add_argument('-u', '--user', help="Set the base directory where .sentinelnode/ exists i.e., --user dvpn - implies (/home/dvpn/.sentinelnode)", metavar='user')
@@ -114,7 +116,7 @@ if __name__ == "__main__":
     print("MIN PRICES: ")
     print(MIN_GB_PRICES)
     print(MIN_HR_PRICES)
-    a = input("Press Enter to continue....")
+    #a = input("Press Enter to continue....")
     
 
     if args.twap:
