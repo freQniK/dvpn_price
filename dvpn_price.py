@@ -12,7 +12,7 @@ import time
 from statistics import mean
 import requests
 
-VERSION = "v0.4.1"
+VERSION = "v0.4.2"
 
 # If not specified, node provider will charge this rate.
 # $0.008/GB,$0.005/hr
@@ -44,7 +44,14 @@ def CoinGeckoPrices(days):
         for coin in list(COINS.keys()):    
             delta = datetime.timedelta(days=k)
             yesterday = today - delta
-            data = cg.get_coin_history_by_id(id=coin, date=yesterday.strftime("%d-%m-%Y"),vs_currencies='usd')
+            try:
+                data = cg.get_coin_history_by_id(id=coin, date=yesterday.strftime("%d-%m-%Y"),vs_currencies='usd')
+            except ValueError:
+                time.sleep(30)
+                try: 
+                    data = cg.get_coin_history_by_id(id=coin, date=yesterday.strftime("%d-%m-%Y"),vs_currencies='usd')
+                except ValueError:
+                    continue
             price_data[coin].append(data["market_data"]["current_price"]["usd"])
             #print(price_data[coin])
             time.sleep(10)
