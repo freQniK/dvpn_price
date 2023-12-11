@@ -1,7 +1,8 @@
 # dvpn_price
+
 Update Sentinel DVPN Node Prices with Market Changes including IBC coin prices based on TWAP (Time Weighted Average Price). Updates the `config.toml` for hourly and gigabyte prices based on this average and user specified price. 
 
-## Note 
+## Note
 
 This is for dVPN node versions 0.7.0
 
@@ -16,6 +17,7 @@ wget -O - https://github.com/freQniK/dvpn_price/releases/download/v0.4.1/dvpn_pr
 ```
 
 ## Run
+
 We now distribute this as a cross-platform package so untarballing it will product a `bin` folder where libraries and binaries reside. 
 
 ```shell
@@ -38,7 +40,6 @@ optional arguments:
                         USD. i.e., --price 0.005
   -u user, --user user  Set the base directory where .sentinelnode/ exists
                         i.e., --user dvpn - implies (/home/dvpn/.sentinelnode)
-
 ```
 
 Where **days** in `--twap` is the number of days to average a price over based on market price of the coin for each previous day. 
@@ -49,6 +50,7 @@ i.e.,
 `-t/--twap 7` - Average all IBC and DVPN prices over 7 days 
 
 ## Example
+
 ```shell
 sudo dvpn_price --twap 7 --price-gb 0.008 --price-hr 0.005 --user sentinel
 ```
@@ -56,10 +58,11 @@ sudo dvpn_price --twap 7 --price-gb 0.008 --price-hr 0.005 --user sentinel
 This will average the price of *OSMO, SCRT, ATOM, DEC, DVPN* over the last 7 days. It will set a price of *$0.008/GB* and *$0.005/hr* and change the **config.toml** in the directory `/home/sentinel/.sentinelnode/config.toml`
 
 ### Note
+
 Be sure to run this as `sudo` as the config directory is root permissions only. 
 
-
 # Install (source)
+
 ```shell
 sudo apt install python3-pip
 sudo pip install toml pycoingecko
@@ -71,19 +74,34 @@ sudo pip install toml pycoingecko
 sudo ./dvpn_price.py -h
 ```
 
-
 ## Cronjob
+
 You can also create a cronjob (as root) to have this run every week, every month, every day, every hour, every minute. Just be sure to restart your node eventually for the changes to take place.
 
 ### Example
+
 ```shell
 sudo crontab -e
 ```
 
 Place the following line at the bottom of the file:
+
 ```
 59 12 * * * /home/sentinel/bin/dvpn_price --twap 7 --price-gb 0.008 --price-hr 0.005 --user sentinel
 ```
 
 This will update your sentinel node **config.toml** every day at 12:59 p.m.
 
+
+
+## Cronjob Helper Script
+
+I have included a helper script for those node runners who are hosting many nodes. This script will SSH to all your node boxes and set up the cronjobs respectively. 
+
+
+
+[dvpn-price-cronjob.sh](https://github.com/freQniK/dvpn_price/blob/a33bbdd5e980913d8c96a5f0c1acfec88b594af4/sh/dvpn-price-cronjob.sh)
+
+
+
+Open the file and edit the lines where it asks and fill in your values.
