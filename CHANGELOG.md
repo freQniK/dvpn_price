@@ -1,4 +1,8 @@
 
+# v0.4.3 (January, 2024)
+* UPDATE: Migrate to CoinStats API
+* UPDATE: process date timestamps for historical data
+
 # v0.4.0 (October, 2023)
 * NEW: Min price feed from remote API
 * NEW: Set hourly price

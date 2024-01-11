@@ -3,16 +3,17 @@
 # sudo pip install toml pycoingecko
 # sudo python3 dvpn_coin_conf.py
 
-import toml
-from pycoingecko import CoinGeckoAPI 
+import toml 
 from os import path
 import argparse
-import datetime
 import time
 from statistics import mean
 import requests
+from datetime import datetime,timedelta, timezone
+import random
+import scrtxxs
 
-VERSION = "v0.4.2"
+VERSION = "v0.4.3"
 
 # If not specified, node provider will charge this rate.
 # $0.008/GB,$0.005/hr
@@ -34,27 +35,32 @@ COINS = {'sentinel' : 'udvpn', 'osmosis' : IBCOSMO, 'decentr' : IBCDEC, 'cosmos'
 
 SATOSHI = 1000000
 
+COINSTATS_API = "https://openapiv1.coinstats.app/coins/price/avg?coinId=%s&timestamp=%s"
+
 def CoinGeckoPrices(days):
-    cg = CoinGeckoAPI()
-    today = datetime.datetime.now()
-    #CoinPrices = cg.get_price(list(COINS.keys()), 'usd')
+    today = datetime.now(timezone.utc)
     CoinPrices = {}
     price_data = {coin: [] for coin in list(COINS.keys())}
     for k in range(1,days+1):
+        N = random.randint(0,len(scrtxxs.COINSTATS_API_KEYS)-1)
+        API_KEY = scrtxxs.COINSTATS_API_KEYS[N]
+        headers = {
+            "accept": "application/json",
+            "X-API-KEY": f"{API_KEY}"
+        }
         for coin in list(COINS.keys()):    
-            delta = datetime.timedelta(days=k)
-            yesterday = today - delta
+            day_delta = today - timedelta(days=k)
+            ts = int(day_delta.timestamp())
             try:
-                data = cg.get_coin_history_by_id(id=coin, date=yesterday.strftime("%d-%m-%Y"),vs_currencies='usd')
-            except ValueError:
-                time.sleep(30)
-                try: 
-                    data = cg.get_coin_history_by_id(id=coin, date=yesterday.strftime("%d-%m-%Y"),vs_currencies='usd')
-                except ValueError:
-                    continue
-            price_data[coin].append(data["market_data"]["current_price"]["usd"])
+                response = requests.get(COINSTATS_API % (coin, ts), headers=headers)
+                r = response.json()
+            except Exception as e:
+                print(str(e))
+                time.sleep(5)
+                continue
+            price_data[coin].append(r['USD'])
             #print(price_data[coin])
-            time.sleep(10)
+            time.sleep(3)
             
     for coin in list(COINS.keys()):
         CoinPrices[coin] = mean(price_data[coin])
