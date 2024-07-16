@@ -11,7 +11,7 @@
 #
 
 # EDIT THESE to all your IP ADDRESSES of your nodes
-nodes=('molien.mathnodes.com petersen.mathnodes.com zozobra.mathnodes.com shimura.mathnodes.com ballsinyourmouth.simpul.me elsisemite.mathnodes.com erdos.mathnodes.com schrodinger.mathnodes.com hardyandlittlewood.mathnodes.com bolzano.mathnodes.com thabit.mathnodes.com shafarevich.mathnodes.com garavito.mathnodes.com hecke.mathnodes.com hamilton.mathnodes.com')
+nodes=('usa.bluefren.xyz portugal.bluefren.xyz switzerland.bluefren.xyz finland.bluefren.xyz hongkong.bluefren.xyz')
 
 # SSH PORT (EDIT)
 port='22000'

@@ -13,7 +13,7 @@ We have compiled it into a package distribtion now for cross-compatibility on al
 Download the latest version of [dvpn_price](https://github.com/freQniK/dvpn_price/releases/download/v0.4.1/dvpn_price-v0.4.1.tar.gz) from the releases page and extract, i.e., :
 
 ```shell
-wget -O - https://github.com/freQniK/dvpn_price/releases/download/v0.4.1/dvpn_price-v0.4.1.tar.gz | tar xvzf -
+wget -O - https://github.com/freQniK/dvpn_price/releases/download/v0.4.3/dvpn_price_v0.4.3.tar.gz | tar xvzf -
 ```
 
 ## Run
@@ -22,12 +22,12 @@ We now distribute this as a cross-platform package so untarballing it will produ
 
 ```shell
 $ sudo ./bin/dvpn_price -h
-dVPN Price Oracle for dVPN Node operators v0.4.1 - freQniK
+dVPN Price Oracle for dVPN Node operators v0.4.3 - freQniK
 
 
 usage: dvpn_price.py [-h] [-t days] [-p price] [-q hprice] [-u user]
 
-dVPN Price Oracle for dVPN Node operators v0.4.1 - freQniK
+dVPN Price Oracle for dVPN Node operators v0.4.3 - freQniK
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -52,7 +52,7 @@ i.e.,
 ## Example
 
 ```shell
-sudo dvpn_price --twap 7 --price-gb 0.008 --price-hr 0.005 --user sentinel
+sudo dvpn_price --twap 7 --price-gb 0.008 --price-hr 0.001 --user sentinel
 ```
 
 This will average the price of *OSMO, SCRT, ATOM, DEC, DVPN* over the last 7 days. It will set a price of *$0.008/GB* and *$0.005/hr* and change the **config.toml** in the directory `/home/sentinel/.sentinelnode/config.toml`
@@ -87,21 +87,15 @@ sudo crontab -e
 Place the following line at the bottom of the file:
 
 ```
-59 12 * * * /home/sentinel/bin/dvpn_price --twap 7 --price-gb 0.008 --price-hr 0.005 --user sentinel
+59 12 * * * /home/sentinel/bin/dvpn_price --twap 7 --price-gb 0.008 --price-hr 0.001 --user sentinel
 ```
 
 This will update your sentinel node **config.toml** every day at 12:59 p.m.
-
-
 
 ## Cronjob Helper Script
 
 I have included a helper script for those node runners who are hosting many nodes. This script will SSH to all your node boxes and set up the cronjobs respectively. 
 
-
-
 [dvpn-price-cronjob.sh](https://github.com/freQniK/dvpn_price/blob/a33bbdd5e980913d8c96a5f0c1acfec88b594af4/sh/dvpn-price-cronjob.sh)
-
-
 
 Open the file and edit the lines where it asks and fill in your values.
